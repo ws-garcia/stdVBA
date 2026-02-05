@@ -2767,7 +2767,7 @@
         "examples": [],
         "params": [
           {
-            "name": "clone",
+            "name": "Clone",
             "type": "stdArray",
             "description": "A reference to the clone",
             "optional": false,
