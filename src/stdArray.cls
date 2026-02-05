@@ -83,7 +83,7 @@ Private Enum SortDirection
     Descending = 2
 End Enum
 Private Type SortStruct
-  Value As Variant
+  value As Variant
   SortValue As Variant
 End Type
 
@@ -98,7 +98,7 @@ Private This As TThis
 
 
 
-'Event executed before the internal array is overwritten 
+'Event executed before the internal array is overwritten
 '@param arr - A reference to this array
 '@param arr2 - The array which is being assigned to this array
 Public Event BeforeArrLet(ByRef arr As stdArray, ByRef arr2 As Variant)
@@ -112,7 +112,7 @@ Public Event AfterArrLet(ByRef arr As stdArray, ByRef arr2 As Variant)
 '@param arr - A the array to which the item is being added
 '@param iIndex - The index at which the item will be added
 '@param item - The item which will be added
-'@param cancel - Set to true to cancel the addition 
+'@param cancel - Set to true to cancel the addition
 Public Event BeforeAdd(ByRef arr As stdArray, ByVal iIndex As Long, ByRef item As Variant, ByRef cancel As Boolean)
 
 'Event executed after an item is added to the array
@@ -135,7 +135,7 @@ Public Event AfterRemove(ByRef arr As stdArray, ByVal iIndex As Long)
 
 'Event executed after an array is cloned
 '@param clone - A reference to the clone
-Public Event AfterClone(ByRef clone As stdArray)
+Public Event AfterClone(ByRef Clone As stdArray)
 
 'Event executed after an array is created
 '@param arr - A reference to the array
@@ -187,7 +187,7 @@ End Function
 'Create a `stdArray` object from a VBA array
 '@constructor
 '@param arr - Variant array to create a `stdArray` object from.
-'@returns stdArray<variant> - Returns `stdArray` of variants. 
+'@returns stdArray<variant> - Returns `stdArray` of variants.
 Public Function CreateFromArray(ByVal arr As Variant) As stdArray
     Set CreateFromArray = New stdArray
     
@@ -296,8 +296,8 @@ End Sub
 
 
 'Sort the array
-'@param cbSortBy as stdICallable<(variant)=>variant>              - A mapping function which should map whatever the input is to whatever variant the array should be sorted on.  
-'@param cbComparrason as stdICallable<(variant,variant)=>boolean> - Comparrison function which consumes 2 variants and generates a boolean. See implementation of `Sort_QuickSort` for details. 
+'@param cbSortBy as stdICallable<(variant)=>variant>              - A mapping function which should map whatever the input is to whatever variant the array should be sorted on.
+'@param cbComparrason as stdICallable<(variant,variant)=>boolean> - Comparrison function which consumes 2 variants and generates a boolean. See implementation of `Sort_QuickSort` for details.
 '@param iAlgorithm                                                - Currently only 1 algorithm: 0 - Quicksort
 '@param bSortInPlace                                              - Sort the array in place. Sorting in-place is prefferred if possible as it is much more performant.
 '@returns stdArray                                                - A sorted array
@@ -317,7 +317,7 @@ Public Function Sort(Optional ByVal cbSortBy As stdICallable = Nothing, Optional
     
     'Copy array to sort structures
     For i = 1 To Length()
-      Call CopyVariant(arr(i).Value, This.BaseArray(i))
+      Call CopyVariant(arr(i).value, This.BaseArray(i))
       If cbSortBy Is Nothing Then
         Call CopyVariant(arr(i).SortValue, This.BaseArray(i))
       Else
@@ -335,7 +335,7 @@ Public Function Sort(Optional ByVal cbSortBy As stdICallable = Nothing, Optional
     
     'Copy sort structures to array
     For i = 1 To Length()
-      Call CopyVariant(This.BaseArray(i), arr(i).Value)
+      Call CopyVariant(This.BaseArray(i), arr(i).value)
     Next
     
     'Return array
@@ -965,10 +965,12 @@ End Function
 '```
 Public Function Reduce(ByVal cb As stdICallable, Optional ByVal initialValue As Variant) As Variant
   Dim iStart As Long
+  Dim el As Variant
   If This.Initialised Then
     If This.Length > 0 Then
       If IsMissing(initialValue) Then
-        Call CopyVariant(Reduce, This.BaseArray(1))
+        CopyVariant el, This.BaseArray(1)
+        Call CopyVariant(Reduce, cb.Run(Reduce, el))
         iStart = 2
       Else
         Call CopyVariant(Reduce, initialValue)
@@ -986,7 +988,6 @@ Public Function Reduce(ByVal cb As stdICallable, Optional ByVal initialValue As 
     Dim i As Long
     For i = iStart To This.Length
       'BUGFIX: Sometimes required, not sure when
-      Dim el As Variant
       CopyVariant el, This.BaseArray(i)
 
       'Reduce
@@ -1054,7 +1055,7 @@ Public Function GroupBy(ByVal cb As stdICallable) As Object
     key = cb.Run(This.BaseArray(i))
 
     'If key is not set then set it
-    If Not result.exists(key) Then Set result(key) = stdArray.Create()
+    If Not result.Exists(key) Then Set result(key) = stdArray.Create()
 
     'Push item to key
     result(key).Push This.BaseArray(i)
@@ -1083,7 +1084,7 @@ Public Function Max(Optional ByVal cb As stdICallable = Nothing, Optional ByVal 
       Call CopyVariant(vtValue, cb.Run(v))
     End If
 
-    'Compare values and return 
+    'Compare values and return
     If IsEmpty(vRet) Then
       Call CopyVariant(vRet, v)
       Call CopyVariant(vMaxValue, vtValue)
@@ -1103,7 +1104,7 @@ End Function
 Public Function Min(Optional ByVal cb As stdICallable = Nothing, Optional ByVal startingValue As Variant = Empty) As Variant
   Dim vRet, vMinValue, v
   vMinValue = startingValue: vRet = startingValue
-  Dim i as long
+  Dim i As Long
   For i = 1 To This.Length
     Call CopyVariant(v, This.BaseArray(i))
     
@@ -1115,7 +1116,7 @@ Public Function Min(Optional ByVal cb As stdICallable = Nothing, Optional ByVal 
       Call CopyVariant(vtValue, cb.Run(v))
     End If
 
-    'Compare values and return 
+    'Compare values and return
     If IsEmpty(vRet) Then
       Call CopyVariant(vRet, v)
       Call CopyVariant(vMinValue, vtValue)
